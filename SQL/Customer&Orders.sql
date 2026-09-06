@@ -24,6 +24,27 @@ o.customer_id=c.customer_id
 where month(o.order_date)!=6
 group by c.customer_id;
 
+SELECT customer_id, name
+FROM customer
+WHERE customer_id IN (
+    SELECT customer_id
+    FROM orders
+    GROUP BY customer_id
+    HAVING SUM(order_amount) = (
+        SELECT MAX(total_value)
+        FROM (
+            SELECT customer_id, SUM(order_amount) AS total_value
+            FROM orders
+            GROUP BY customer_id
+        ) AS x
+    )
+);
+
+select order_id from orders1
+where order_date in (2023-07-04 , 2027-07-06);
+
+
+
 
 
 
