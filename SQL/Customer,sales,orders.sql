@@ -144,4 +144,106 @@ WHERE o.purch_amt > (
 
 /*Write a query to find the sums of the amounts from the orders table, grouped by date, eliminating dates where
  the sum was not at least 1000.00 above the maximum order amount for that date.*/
+ use veevasystems;
+ select ord_date,sum(purch_amt) from orders2
+ group by ord_date
+ having sum(purch_amt)>=max(purch_amt)+1000;
  
+ /*Write a query to extract the data from the customer table if and only if one or more customers are located in London.*/
+ select * from customer2
+ where exists(select * from customer2
+ where city='London');
+ 
+ /*Write a query to find the salesmen who have multiple customers.*/
+ select s.salesman_id 
+ from salesman2 s
+ join customer2 c
+ on s.salesman_id=c.salesman_id
+ group by s.salesman_id
+ having count(c.salesman_id)>=2;
+
+/*Write a query to find all the salesmen who work for only one customer.*/
+ select s.salesman_id 
+ from salesman2 s
+ join customer2 c
+ on s.salesman_id=c.salesman_id
+ group by s.salesman_id
+ having count(c.customer_id)=1;
+ 
+ /*Write a query to extract the rows of all salesmen who have customers with more than one order.*/
+ select s.salesman_id from salesman2 s
+ join customer2 c
+ on s.salesman_id=c.salesman_id
+ join orders2 o
+ on c.customer_id=o.customer_id
+ group by s.salesman_id
+ having count(o.ord_no)>1;
+ 
+ /*Write a query to find salesmen with all information who live in a city where any of the customers live.*/
+SELECT *
+FROM salesman2 s
+WHERE s.city = ANY (
+    SELECT c.city
+    FROM customer2 c
+);
+
+/*Write a query to find all the salesmen for whom there are customers that follow them.*/
+SELECT *
+FROM salesman2 s
+WHERE s.salesman_id = ANY (
+    SELECT c.salesman_id
+    FROM customer2 c
+);
+
+/*Write a query to display the salesmen whose names are alphabetically lower than the names of the customers.*/
+select * from salesman2 s
+where s.name<any(select cust_name from customer2);
+
+/*Write a query to display the customers who have a greater grade than any customer who belongs to a city alphabetically lower than New York.*/
+select * from customer2
+where grade>any(select grade from customer2 
+where city<'New York');
+
+/*Write a query to display all orders that had amounts greater than at least one of the orders on September 10th 2012.*/
+select * from orders2 
+where purch_amt>any(select purch_amt from orders2
+where ord_date='2012-09-10');
+
+/*Write a query to find all orders with an amount smaller than any amount for a customer in London.*/
+select * from orders2 o 
+where o.purch_amt<any(select o1.purch_amt from orders2 o1
+join customer2 c
+on o1.customer_id=c.customer_id
+where c.city='London');
+
+/*Write a query to display all orders with an amount smaller than the maximum amount for a customer in London.*/
+select * from orders2 o
+where o.purch_amt<(select max(o1.purch_amt) from orders2 o1
+join customer2 c
+on o1.customer_id=c.customer_id
+where c.city='London');
+
+/*Write a query to display only those customers whose grades are higher than every customer in New York.*/
+select * from customer2
+where grade>all(select grade from customer2
+where city='New York');
+
+/*Write a query to find only those customers whose grades are higher than every customer in the city New York.*/
+select * from customer2
+where grade>all(select grade from customer2
+where city='New York');
+
+/*Write a query to get all information for those customers whose grade is not the same as the grade of a customer who belongs to the city London.*/
+select * from customer2
+where grade !=all(select grade from customer2
+where city='London'and grade is not null);
+
+/*Write a query to find all customers whose grade is not the same as the grade belonging to the city Paris.*/
+select * from customer2
+where grade not in(select grade from customer2
+where city='Paris');
+
+/*Write a query to find all those customers who hold a different grade than any customer of the city Dallas.*/
+select * from customer2
+where grade not in (select grade from customer2
+where city='Dallas');
